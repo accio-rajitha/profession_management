@@ -13,8 +13,10 @@ employeeForm.addEventListener('submit', function(event) {
   const age = parseInt(document.getElementById('age').value);
 
   if (name.trim() === '' || profession.trim() === '' || isNaN(age)) {
-    errorMessage.textContent = 'Error: Please fill all fields before adding an employee!';
+    errorMessage.textContent = 'Error: Please make sure all fields are filled before adding an employee';
     errorMessage.style.color = 'red';
+    errorMessage.style.marginLeft= '10px';
+    showMessage('', ''); // Clear any previous success message
     return;
   }
 
@@ -29,38 +31,50 @@ employeeForm.addEventListener('submit', function(event) {
 
   employees.push(newEmployee);
   renderEmployees();
-  showMessage('Success: Employee added!', 'success');
+  
+  
+  showMessage('Success: Message Added', 'success');
+
   employeeForm.reset();
 });
 
 function renderEmployees() {
   employeesContainer.innerHTML = '';
-  employees.forEach(function(employee, index) {
-    const div = document.createElement('div');
-    div.classList.add('employee');
+  if (employees.length > 0) {
+    employees.forEach(function(employee, index) {
+      const employeeEntry = document.createElement('div');
+      employeeEntry.classList.add('employee-entry');
 
-    const employeeDetailsDiv = document.createElement('div');
-    employeeDetailsDiv.classList.add('employee-details');
-    employeeDetailsDiv.innerHTML = `
-      <p> ${index + 1}.  &nbsp; &nbsp; Name: ${employee.name} &nbsp; &nbsp; Profession: ${employee.profession} &nbsp; &nbsp; Age: ${employee.age}</p>
-    `;
-    
-    const deleteButton = document.createElement('button');
-    deleteButton.textContent = 'Delete';
-    deleteButton.classList.add('delete-button');
-    deleteButton.addEventListener('click', function() {
-      deleteEmployee(employee.id);
+     
+      const employeeDetails = document.createElement('div');
+      employeeDetails.classList.add('employee-details');
+      employeeDetails.innerHTML = `
+        <span>${employee.name}</span>
+        <span> ${employee.profession}</span>
+        <span>${employee.age}</span>
+      `;
+
+      
+      employeeEntry.appendChild(employeeDetails);
+
+     
+      const deleteDiv = document.createElement('div');
+      deleteDiv.classList.add('delete-div');
+      deleteDiv.innerHTML = `<button class="delete-button" onclick="deleteEmployee(${employee.id})">Delete</button>`;
+
+      
+      employeeEntry.appendChild(deleteDiv);
+
+     
+      employeesContainer.appendChild(employeeEntry);
+      if (index < employees.length - 1) {
+        employeesContainer.appendChild(document.createTextNode(', ')); // Add a comma between employee entries
+      }
     });
-
-    div.appendChild(employeeDetailsDiv);
-    employeesContainer.appendChild(div);
-
-    
-    employeesContainer.appendChild(deleteButton);
-  });
-
-  
-  initialMessage.style.display = employees.length === 0 ? 'block' : 'none';
+    initialMessage.style.display = 'none';
+  } else {
+    initialMessage.style.display = 'block';
+  }
 }
 
 function deleteEmployee(id) {
@@ -68,12 +82,9 @@ function deleteEmployee(id) {
     return employee.id !== id;
   });
   renderEmployees();
-  showMessage('Employee deleted successfully', 'success');
 }
 
 function showMessage(msg, className) {
   message.textContent = msg;
   message.className = className;
 }
-
-
